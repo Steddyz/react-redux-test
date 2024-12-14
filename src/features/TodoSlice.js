@@ -12,9 +12,7 @@ export const todoSlice = createSlice({
       state.todos.push(action.payload);
     },
     removeTodo(state, action) {
-      // if (action.payload > -1 && action.payload < state.todos.length) {
-      //   state.todos.splice(action.payload, 1);
-      // }
+      state.todos = state.todos.filter((todo) => todo.id !== action.payload);
     },
     toggleCompletedTodo(state, action) {
       const toggleTodo = state.todos.find((todo) => todo.id === action.payload);
