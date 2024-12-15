@@ -8,7 +8,7 @@ const initialState = {
 };
 
 export const getPosts = createAsyncThunk(
-  "posts/post",
+  "posts/getPosts",
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.get(
@@ -17,7 +17,19 @@ export const getPosts = createAsyncThunk(
 
       dispatch(setPosts(response.data));
     } catch (error) {
-      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const removePost = createAsyncThunk(
+  "posts/removePost",
+  async (id, { rejectWithValue, dispatch }) => {
+    try {
+      await axios.delete(`https://jsonplaceholder.typicode.com/posts/${id}`);
+      dispatch(deletePosts(id));
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
   }
 );
@@ -28,6 +40,9 @@ export const postSlice = createSlice({
   reducers: {
     setPosts(state, action) {
       state.posts = action.payload;
+    },
+    deletePosts(state, action) {
+      state.posts = state.posts.filter((post) => post.id !== action.payload);
     },
   },
 
@@ -47,9 +62,23 @@ export const postSlice = createSlice({
       .addCase(getPosts.rejected, (state, action) => {
         state.isLoading = false;
         console.log("rejected");
+      })
+      .addCase(removePost.pending, (state) => {
+        state.isLoading = true;
+
+        console.log("delete pending");
+      })
+      .addCase(removePost.fulfilled, (state) => {
+        state.isLoading = false;
+
+        console.log("delete fulfilled");
+      })
+
+      .addCase(removePost.rejected, (state) => {
+        console.log("delete rejected");
       });
   },
 });
 
 export default postSlice.reducer;
-export const { setPosts } = postSlice.actions;
+export const { setPosts, deletePosts } = postSlice.actions;
